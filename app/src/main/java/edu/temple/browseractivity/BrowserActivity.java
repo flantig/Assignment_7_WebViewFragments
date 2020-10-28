@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 
-public class BrowserActivity extends AppCompatActivity implements PageControlFragment.GOBack {
+public class BrowserActivity extends AppCompatActivity implements PageControlFragment.GOBack, PageViewerFragment.Wave {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,5 +46,12 @@ public class BrowserActivity extends AppCompatActivity implements PageControlFra
         PageViewerFragment webview = (PageViewerFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.page_viewer);
         webview.WebViewLoad(url);
+    }
+
+    @Override
+    public void updateText(String url){
+        PageControlFragment webview = (PageControlFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.page_control);
+        webview.UpdateURL(url);
     }
 }

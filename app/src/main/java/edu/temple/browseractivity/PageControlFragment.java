@@ -19,6 +19,7 @@ import android.widget.ImageButton;
  */
 public class PageControlFragment extends Fragment {
     GOBack parentActivityInterface;
+    EditText inp;
 
     public PageControlFragment() {
         // Required empty public constructor
@@ -68,9 +69,16 @@ public class PageControlFragment extends Fragment {
         return control;
     }
 
+    public void UpdateURL(String url) {
+        EditText ip = (EditText) getView().findViewById(R.id.input);
+        ip.setText(url);
+    }
+
     interface GOBack { //POWER GEYSER!!!
         void goBack();
+
         void goForward();
+
         void loadURL(String url);
     }
 }
