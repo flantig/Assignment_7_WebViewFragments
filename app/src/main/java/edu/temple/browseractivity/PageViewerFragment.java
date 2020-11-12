@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.PatternsCompat;
 import androidx.fragment.app.Fragment;
 
@@ -25,9 +26,11 @@ import java.util.regex.Pattern;
 public class PageViewerFragment extends Fragment {
     WebView webber;
     Wave parentActivityInterface;
+    String urlKey = "";
+    int index;
 
     public PageViewerFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -41,12 +44,17 @@ public class PageViewerFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View webv = inflater.inflate(R.layout.fragment_page_viewer, container, false);
-        WebView webber = webv.findViewById(R.id.webv);
-        webber.loadUrl("https://google.com");
+        webber = webv.findViewById(R.id.webv);
+
+        if(savedInstanceState !=null){
+            webber.restoreState(savedInstanceState);
+        }
+
         webber.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -56,28 +64,54 @@ public class PageViewerFragment extends Fragment {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-
                 parentActivityInterface.updateText(url);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                urlKey = view.getTitle();
+                parentActivityInterface.updateTitle(urlKey, index);
                 parentActivityInterface.updateText(url);
-            }
-        });
 
+            }
+
+
+        });
 
         WebSettings webset = webber.getSettings();
         webset.setJavaScriptEnabled(true);
+
         return webv;
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // Restore WebView settings
+        if (savedInstanceState != null)
+            webber.restoreState(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Store URL and previous/back in case fragment is restarted
+        webber.saveState(outState);
+    }
+
+
+
+
 
     public boolean WebViewGoBack() {
         WebView webber = (WebView) getView().findViewById(R.id.webv);
         webber.getSettings().setJavaScriptEnabled(true);
         if (webber.canGoBack()) {
             webber.goBack();
+            urlKey = webber.getTitle();
             return true;
         }
         return false; //webview cannot go back, so use the method of the BackButton
@@ -88,6 +122,7 @@ public class PageViewerFragment extends Fragment {
         webber.getSettings().setJavaScriptEnabled(true);
         if (webber.canGoForward()) {
             webber.goForward();
+            urlKey = webber.getTitle();
             return true;
         }
         return false; //webview cannot go back, so use the method of the BackButton
@@ -96,6 +131,7 @@ public class PageViewerFragment extends Fragment {
     public void WebViewLoad(String url) {
         WebView webber = (WebView) getView().findViewById(R.id.webv);
         webber.getSettings().setJavaScriptEnabled(true);
+
         if(URLUtil.isValidUrl(url)){
             webber.loadUrl(url);
         } else {
@@ -109,10 +145,13 @@ public class PageViewerFragment extends Fragment {
                 webber.loadUrl(url);
             }
         }
+        urlKey = webber.getTitle();
     }
+
 
     interface Wave { //ROCK SHOOT
         void updateText(String url);
+        void updateTitle(String url, int index);
     }
 
 }
